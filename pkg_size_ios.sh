@@ -27,6 +27,9 @@ scInfoPath="${thinPayloadPath}/SC_info"
 
 function unzipIpa() {
     local ipaPath="$1"
+    if [[ ! -f "${ipaPath}" ]]; then
+        exit 1
+    fi
     unzip -oq "${ipaPath}" -d ${buildPath}
 }
 
