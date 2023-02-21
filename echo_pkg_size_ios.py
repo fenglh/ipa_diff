@@ -8,13 +8,7 @@ import subprocess
 
 def get_ipa_size(ipa_path):
 	scInfoSize = '2867K'
-	p = subprocess.check_output(['./pkg_size_ios.sh', ipa_path, scInfoSize])
+	p = subprocess.check_output(['sh pkg_size_ios.sh', ipa_path, scInfoSize], shell=True)
 	ret = p.decode(encoding='utf-8').split('\n')
 	size = ret[-2]
 	return size
-
-
-
-
-ret=get_ipa_size('/Users/fenglh/Desktop/包大小/echo_1.20.01_12001002_20230118121523_release.ipa')
-print(ret)
