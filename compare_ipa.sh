@@ -32,14 +32,19 @@ fi
 OLD_DIR=$(mktemp -d)
 NEW_DIR=$(mktemp -d)
 
+echo "OLD_DIR:$OLD_DIR"
+echo "NEW_DIR:$NEW_DIR"
+
 echo "******** 解压 IPAS ********"
 
 unzip -q "$OLD_IPA" -d "$OLD_DIR"
 unzip -q "$NEW_IPA" -d "$NEW_DIR"
 
-echo -e "******** 解压 IPAS 完成 ********\n"
+echo -e "******** 解压 IPAS 完成 ********\n\n"
 
-echo -e "******** 开始检查新增的文件 ********\n"
+
+
+echo -e "******** 开始检查新增的文件 ********"
 
 find "$NEW_DIR" -type f | while IFS= read -r file; do
   file_path_in_old="$OLD_DIR/${file#$NEW_DIR}"
@@ -52,9 +57,27 @@ find "$NEW_DIR" -type f | while IFS= read -r file; do
   fi
 done
 
-echo -e "\n******** 检查新增文件完成 ********\n"
+echo -e "\n******** 检查新增文件完成 ********\n\n"
 
-echo -e "******** 检查修改过的文件 ********\n"
+
+echo -e "******** 开始检查删除的文件 ********"
+
+find "$OLD_DIR" -type f | while IFS= read -r file; do
+  file_path_in_new="$NEW_DIR/${file#$OLD_DIR}"
+
+  #检查文件是否存在于新目录中
+  if [ ! -f "$file_path_in_new" ]; then
+    file_size=$(stat -f%z "$file")
+    file_size_mb=$(awk "BEGIN{printf \"%.3f\", $file_size / (1024 * 1024)}")
+    echo -e "\n${file#$OLD_DIR} (Size: $file_size_mb MB)"
+  fi
+done
+
+echo -e "\n******** 检查删除的文件完成 ********\n\n"
+
+
+
+echo -e "******** 检查修改过的文件 ********"
 
 #遍历新目录中的文件
 find "$NEW_DIR" -type f | while IFS= read -r file; do
@@ -78,4 +101,4 @@ done
 echo -e "\n******** 检查修改过的文件完成 ********\n"
 
 # 清理临时目录
-rm -rf "$OLD_DIR" "$NEW_DIR"
+# rm -rf "$OLD_DIR" "$NEW_DIR"
