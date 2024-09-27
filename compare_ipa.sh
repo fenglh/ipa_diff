@@ -36,6 +36,8 @@ fi
 OLD_DIR=$(mktemp -d)
 NEW_DIR=$(mktemp -d)
 
+echo -e "******** 开始解压 IPAS  ********"
+
 unzip -q "$OLD_IPA" -d "$OLD_DIR"
 unzip -q "$NEW_IPA" -d "$NEW_DIR"
 
