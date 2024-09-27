@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+cartool=./cartool
+
+
 #检查旧 IPA 路径是否作为第一个输入参数提供
 if [ -z "$1" ]; then
   echo "请提供旧 IPA 文件的路径。" 
@@ -32,58 +36,103 @@ fi
 OLD_DIR=$(mktemp -d)
 NEW_DIR=$(mktemp -d)
 
-echo "OLD_DIR:$OLD_DIR"
-echo "NEW_DIR:$NEW_DIR"
+# echo "OLD_DIR:$OLD_DIR"
+# echo "NEW_DIR:$NEW_DIR"
 
-echo "******** 解压 IPAS ********"
-
+echo "解压旧IPA:${$OLD_IPA}"
 unzip -q "$OLD_IPA" -d "$OLD_DIR"
+echo "解压新IPA:${$OLD_IPA}"
 unzip -q "$NEW_IPA" -d "$NEW_DIR"
 
-echo -e "******** 解压 IPAS 完成 ********\n\n"
+echo -e "******** 解压 IPAS 完成 ********"
+
+
+echo "******** 解压旧IPA的 Asset.car ********"
+find "$OLD_DIR" -type f -name "Assets.car" | while IFS= read -r file; do
+
+  echo "解压${file}"
+  file_dir=${file%/*}
+  $cartool $file $file_dir >/dev/null 2>&1
+
+done
+echo "******** 解压旧IPA的 Asset.car 完成 ********"
+
+
+
+echo "******** 解压新IPA的 Asset.car ********"
+find "$NEW_DIR" -type f -name "Assets.car" | while IFS= read -r file; do
+
+  echo "解压${file}"
+  file_dir=${file%/*}
+  $cartool $file $file_dir >/dev/null 2>&1
+
+done
+echo "******** 解压新IPA的 Asset.car 完成 ********"
+
 
 
 
 echo -e "******** 开始检查新增的文件 ********"
-
 find "$NEW_DIR" -type f | while IFS= read -r file; do
-  file_path_in_old="$OLD_DIR/${file#$NEW_DIR}"
 
+    # 检查文件名是否为 Asset.car
+    if [[ "$(basename "$file")" == "Assets.car" ]]; then
+        # 跳过 Assets.car 文件
+        continue
+    fi
+
+
+  file_path_in_old="$OLD_DIR/${file#$NEW_DIR}"
   #检查文件是否存在于旧目录中
   if [ ! -f "$file_path_in_old" ]; then
     file_size=$(stat -f%z "$file")
     file_size_mb=$(awk "BEGIN{printf \"%.3f\", $file_size / (1024 * 1024)}")
-    echo -e "\n${file#$NEW_DIR} (Size: $file_size_mb MB)"
+
+    if [ "$file_size_mb" == "0.000" ]; then 
+      continue
+    fi 
+
+    echo -e "\n新增 ${file#$NEW_DIR} ($file_size_mb MB)"
   fi
 done
-
 echo -e "\n******** 检查新增文件完成 ********\n\n"
 
 
 echo -e "******** 开始检查删除的文件 ********"
-
 find "$OLD_DIR" -type f | while IFS= read -r file; do
-  file_path_in_new="$NEW_DIR/${file#$OLD_DIR}"
 
+    # 检查文件名是否为 Asset.car
+    if [[ "$(basename "$file")" == "Assets.car" ]]; then
+        # 跳过 Assets.car 文件
+        continue
+    fi
+
+  file_path_in_new="$NEW_DIR/${file#$OLD_DIR}"
   #检查文件是否存在于新目录中
   if [ ! -f "$file_path_in_new" ]; then
     file_size=$(stat -f%z "$file")
     file_size_mb=$(awk "BEGIN{printf \"%.3f\", $file_size / (1024 * 1024)}")
-    echo -e "\n${file#$OLD_DIR} (Size: $file_size_mb MB)"
+    if [ "$file_size_mb" == "0.000" ]; then 
+      continue
+    fi 
+    echo -e "\n删除 ${file#$OLD_DIR} ($file_size_mb MB)"
   fi
 done
-
 echo -e "\n******** 检查删除的文件完成 ********\n\n"
 
 
 
 echo -e "******** 检查修改过的文件 ********"
-
 #遍历新目录中的文件
 find "$NEW_DIR" -type f | while IFS= read -r file; do
+
+  # 检查文件名是否为 Asset.car
+  if [[ "$(basename "$file")" == "Assets.car" ]]; then
+      # 跳过 Assets.car 文件
+      continue
+  fi
+
   file_path_in_old="$OLD_DIR/${file#$NEW_DIR}"
-
-
   #检查文件是否存在于旧目录中
   if [ -f "$file_path_in_old" ]; then
     old_size=$(stat -f%z "$file_path_in_old")
@@ -93,12 +142,15 @@ find "$NEW_DIR" -type f | while IFS= read -r file; do
       old_size_mb=$(awk "BEGIN{printf \"%.3f\", $old_size / (1024 * 1024)}")
       new_size_mb=$(awk "BEGIN{printf \"%.3f\", $new_size / (1024 * 1024)}")
       size_difference=$(awk "BEGIN{printf \"%.3f\", $new_size_mb - $old_size_mb}")
-      echo -e "\n${file#$NEW_DIR} (大小增加了: $size_difference MB)"
+      if [ "$size_difference" == "0.000" ]; then 
+        continue
+      fi 
+      echo -e "\n修改 ${file#$NEW_DIR} (大小增加:$size_difference MB)"
     fi
   fi
 done
-
 echo -e "\n******** 检查修改过的文件完成 ********\n"
 
+
 # 清理临时目录
-# rm -rf "$OLD_DIR" "$NEW_DIR"
+rm -rf "$OLD_DIR" "$NEW_DIR"
