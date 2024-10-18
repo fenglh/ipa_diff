@@ -36,35 +36,35 @@ fi
 OLD_DIR=$(mktemp -d)
 NEW_DIR=$(mktemp -d)
 
-echo -e "******** 开始解压 IPAS  ********"
+# echo "******** 开始解压 IPAS  ********"
 
 unzip -q "$OLD_IPA" -d "$OLD_DIR"
 unzip -q "$NEW_IPA" -d "$NEW_DIR"
 
-echo -e "******** 解压 IPAS 完成 ********"
+# echo "******** 解压 IPAS 完成 ********"
 
 
-echo "******** 解压旧IPA的 Asset.car ********"
+# echo "******** 解压旧IPA的 Asset.car ********"
 find "$OLD_DIR" -type f -name "Assets.car" | while IFS= read -r file; do
 
-  echo "解压${file}"
+  # echo "解压${file}"
   file_dir=${file%/*}
   $cartool $file $file_dir >/dev/null 2>&1
 
 done
-echo "******** 解压旧IPA的 Asset.car 完成 ********"
+# echo "******** 解压旧IPA的 Asset.car 完成 ********"
 
 
 
-echo "******** 解压新IPA的 Asset.car ********"
+# echo "******** 解压新IPA的 Asset.car ********"
 find "$NEW_DIR" -type f -name "Assets.car" | while IFS= read -r file; do
 
-  echo "解压${file}"
+  # echo "解压${file}"
   file_dir=${file%/*}
   $cartool $file $file_dir >/dev/null 2>&1
 
 done
-echo "******** 解压新IPA的 Asset.car 完成 ********"
+# echo "******** 解压新IPA的 Asset.car 完成 ********"
 
 
 
@@ -77,9 +77,9 @@ total_update_size_mb=0.0
 
 
 
-echo -e "\n\n******** 开始检查新增的文件 ********"
+echo "******************************** 新增的文件 ********************************"
 
-while IFS= read -r file; do
+find "$NEW_DIR" -type f | while IFS= read -r file; do
 
   # 检查文件名是否为 Asset.car
   if [[ "$(basename "$file")" == "Assets.car" ]]; then
@@ -97,19 +97,19 @@ while IFS= read -r file; do
       continue
     fi 
 
-    echo -e "\n新增 ${file#$NEW_DIR} ($file_size_mb MB)"
+    echo "新增 ${file#$NEW_DIR} ($file_size_mb MB)"
 
     # 更新累积的总大小
     total_add_size_mb=$(awk "BEGIN{printf \"%.3f\", $total_add_size_mb + $file_size_mb}")
 
   fi
-done < <(find "$NEW_DIR" -type f )
+done 
 
-echo -e "\n******** 检查新增文件完成（累计新增大小:${total_add_size_mb} MB） ********"
+# echo "******** 检查新增文件完成（累计新增大小:${total_add_size_mb} MB） ********"
 
 
-echo -e "\n\n******** 开始检查删除的文件 ********"
-while IFS= read -r file; do
+echo "******************************** 删除的文件 ********************************"
+find "$OLD_DIR" -type f | while IFS= read -r file; do
 
     # 检查文件名是否为 Asset.car
     if [[ "$(basename "$file")" == "Assets.car" ]]; then
@@ -125,19 +125,19 @@ while IFS= read -r file; do
     if [ "$file_size_mb" == "0.000" ]; then 
       continue
     fi 
-    echo -e "\n删除 ${file#$OLD_DIR} ($file_size_mb MB)"
+    echo "删除 ${file#$OLD_DIR} ($file_size_mb MB)"
 
     total_del_size_mb=$(awk "BEGIN{printf \"%.3f\", $total_del_size_mb + $file_size_mb}")
 
   fi
-done < <(find "$OLD_DIR" -type f )
-echo -e "\n******** 检查删除的文件完成（累计删除大小:${total_del_size_mb} MB） ********"
+done
+# echo "******** 检查删除的文件完成（累计删除大小:${total_del_size_mb} MB） ********"
 
 
 
-echo -e "\n\n******** 开始检查修改过的文件 ********"
+echo "******************************** 修改的文件 ********************************"
 #遍历新目录中的文件
-while IFS= read -r file; do
+find "$NEW_DIR" -type f  | while IFS= read -r file; do
 
   # 检查文件名是否为 Asset.car
   if [[ "$(basename "$file")" == "Assets.car" ]]; then
@@ -158,15 +158,15 @@ while IFS= read -r file; do
       if [ "$size_difference" == "0.000" ]; then 
         continue
       fi 
-      echo -e "\n修改 ${file#$NEW_DIR} (大小增加:$size_difference MB)"
+      echo "修改 ${file#$NEW_DIR} (大小增加:$size_difference MB)"
 
       # 更新累积的总大小
       total_update_size_mb=$(awk "BEGIN{printf \"%.3f\", $total_update_size_mb + $size_difference}")
 
     fi
   fi
-done < <(find "$NEW_DIR" -type f )
-echo -e "******** 检查修改过的文件完成（累计增加大小:${total_update_size_mb} MB） ********"
+done
+# echo "******** 检查修改过的文件完成（累计增加大小:${total_update_size_mb} MB） ********"
 
 
 # 清理临时目录
