@@ -154,8 +154,11 @@ find "$NEW_DIR" -type f  | while IFS= read -r file; do
     if [ "$new_size" -gt "$old_size" ]; then
       old_size_mb=$(awk "BEGIN{printf \"%.3f\", $old_size / (1024 * 1024)}")
       new_size_mb=$(awk "BEGIN{printf \"%.3f\", $new_size / (1024 * 1024)}")
+
       size_difference=$(awk "BEGIN{printf \"%.3f\", $new_size_mb - $old_size_mb}")
+
       if [ "$size_difference" == "0.000" ]; then 
+
         continue
       fi 
       echo "修改 ${file#$NEW_DIR} (大小增加:$size_difference MB)"

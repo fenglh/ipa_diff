@@ -1,0 +1,13 @@
+******************************** 新增的文件 ********************************
+******************************** 删除的文件 ********************************
+删除 /Payload/Carni.app/RoomBottomPlugin.bundle/icon_room_more_tools_clean@2x.png (0.006 MB)
+删除 /Payload/Carni.app/RoomBottomPlugin.bundle/icon_room_more_tools_clean@3x.png (0.011 MB)
+删除 /Payload/Carni.app/RoomChatPlugin.bundle/icon_clean@3x.png (0.006 MB)
+删除 /Payload/Carni.app/RoomChatPlugin.bundle/icon_clean@2x.png (0.005 MB)
+删除 /Payload/Carni.app/RoomSendGiftComboPlugin.bundle/btn_room_combo_en@3x.png (0.110 MB)
+删除 /Payload/Carni.app/RoomSendGiftComboPlugin.bundle/btn_room_combo_en@2x.png (0.050 MB)
+删除 /Payload/Carni.app/RoomSendGiftComboPlugin.bundle/btn_room_combo_ar@2x.png (0.050 MB)
+删除 /Payload/Carni.app/RoomSendGiftComboPlugin.bundle/btn_room_combo_ar@3x.png (0.111 MB)
+删除 /Payload/Carni.app/RoomSendGiftComboPlugin.bundle/Info.plist (0.001 MB)
+******************************** 修改的文件 ********************************
+
