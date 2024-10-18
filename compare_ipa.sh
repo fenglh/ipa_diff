@@ -150,23 +150,20 @@ find "$NEW_DIR" -type f  | while IFS= read -r file; do
   if [ -f "$file_path_in_old" ]; then
     old_size=$(stat -f%z "$file_path_in_old")
     new_size=$(stat -f%z "$file")
+    old_size_mb=$(awk "BEGIN{printf \"%.3f\", $old_size / (1024 * 1024)}")
+    new_size_mb=$(awk "BEGIN{printf \"%.3f\", $new_size / (1024 * 1024)}")
 
-    if [ "$new_size" -gt "$old_size" ]; then
-      old_size_mb=$(awk "BEGIN{printf \"%.3f\", $old_size / (1024 * 1024)}")
-      new_size_mb=$(awk "BEGIN{printf \"%.3f\", $new_size / (1024 * 1024)}")
+    size_difference=$(awk "BEGIN{printf \"%.3f\", $new_size_mb - $old_size_mb}")
 
-      size_difference=$(awk "BEGIN{printf \"%.3f\", $new_size_mb - $old_size_mb}")
 
-      if [ "$size_difference" == "0.000" ]; then 
+    if [ "$size_difference" == "0.000" ]; then 
 
-        continue
-      fi 
-      echo "修改 ${file#$NEW_DIR} (大小增加:$size_difference MB)"
+      continue
+    fi 
+    echo "修改 ${file#$NEW_DIR} (大小增加:$size_difference MB)"
 
-      # 更新累积的总大小
-      total_update_size_mb=$(awk "BEGIN{printf \"%.3f\", $total_update_size_mb + $size_difference}")
-
-    fi
+    # 更新累积的总大小
+    total_update_size_mb=$(awk "BEGIN{printf \"%.3f\", $total_update_size_mb + $size_difference}")
   fi
 done
 # echo "******** 检查修改过的文件完成（累计增加大小:${total_update_size_mb} MB） ********"
