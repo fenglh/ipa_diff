@@ -15,9 +15,7 @@ def generate_build_file_report_ios(old_ipa_url, new_ipa_path, project_path):
 
     # ipa文件名
     old_ipa_name = parsed_old_ipa_url.path.split('/')[-1]
-    
 
-    
     # 是否存在目录
     is_exists = os.path.exists(ipa_caches_dir)
     if not is_exists:
@@ -44,7 +42,14 @@ def generate_build_file_report_ios(old_ipa_url, new_ipa_path, project_path):
         for line in report_lines:
             file.write(line + '\n')
     return report_file_path
-    
+
+# 删除缓存目录文件
+def cleanCaches(folder_path):
+    files = os.listdir(folder_path)
+    for file in files:
+        file_path = os.path.join(folder_path, file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
 def compare_ipa(old_ipa_path, new_ipa_path):
     sh_dir = os.path.dirname(__file__)
@@ -53,9 +58,3 @@ def compare_ipa(old_ipa_path, new_ipa_path):
     ret = p.decode(encoding='utf-8').split('\n')
     return ret
 
-
-
-
-ipa_url = "https://dl.pkgs.cc:20001/upload/pkgs/carne_1.17.00_11700012_20241018110541_prod.ipa"
-
-generate_build_file_report_ios(ipa_url, "./carne_1.15.00_11500033_20240926095007_prod.ipa", "./")
